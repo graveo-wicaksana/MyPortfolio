@@ -8,7 +8,7 @@
 SELECT
 	*
 FROM
-	portfolio_data_analyst..Covid_Death_Excel
+	PortfolioProject..Covid_Death_Excel
 WHERE 
 	continent is not NULL
 ORDER BY
@@ -17,7 +17,7 @@ ORDER BY
 SELECT
 	*
 FROM
-	portfolio_data_analyst..Covid_Vaccinations_Excel
+	PortfolioProject..Covid_Vaccinations_Excel
 WHERE
 	continent is not NULL
 ORDER BY
@@ -37,7 +37,7 @@ SELECT
 	, [total_deaths]
 	, [new_deaths]
 FROM
-	portfolio_data_analyst..Covid_Death_Excel
+	PortfolioProject..Covid_Death_Excel
 WHERE
 	continent is not NULL
 ORDER BY
@@ -53,7 +53,7 @@ SELECT
 	, [total_cases]
 	, ROUND(CAST([total_deaths] as float)/[total_cases] * 100, 2) AS death_percentage 
 FROM
-	portfolio_data_analyst..Covid_Death_Excel
+	PortfolioProject..Covid_Death_Excel
 WHERE 
 	continent is not NULL
 	AND location like 'Indonesia'
@@ -70,7 +70,7 @@ SELECT
 	, [population]
 	, ROUND(CAST([total_cases] as float)/[population] * 100, 5) AS case_percentage
 FROM
-	portfolio_data_analyst..Covid_Death_Excel
+	PortfolioProject..Covid_Death_Excel
 WHERE 
 	continent is not NULL
 ORDER BY
@@ -84,13 +84,14 @@ SELECT
 	, MAX([total_cases]) HighInfectedCase
 	, MAX(ROUND(CAST([total_cases] as float)/[population] * 100, 5)) AS HighInfectedRate
 FROM
-	portfolio_data_analyst..Covid_Death_Excel
+	PortfolioProject..Covid_Death_Excel
 WHERE 
 	continent is not NULL
 GROUP BY
 	[location]
+	, [population]
 ORDER BY
-	high_case_percentage DESC
+	HighInfectedRate DESC
 
 
 
@@ -102,7 +103,7 @@ SELECT
 	, MAX([total_deaths]) HighDeathCase
 	, MAX(ROUND(CAST([total_deaths] as float)/[population] * 100, 5)) AS high_death_case_percentage
 FROM
-	portfolio_data_analyst..Covid_Death_Excel
+	PortfolioProject..Covid_Death_Excel
 WHERE 
 	continent is not NULL
 GROUP BY
@@ -118,7 +119,7 @@ SELECT
 	, MAX([total_deaths]) HighDeathCase
 	, MAX(ROUND(CAST([total_deaths] as float)/[population] * 100, 5)) AS high_death_case_percentage
 FROM
-	portfolio_data_analyst..Covid_Death_Excel
+	PortfolioProject..Covid_Death_Excel
 WHERE 
 	continent is NULL
 GROUP BY
@@ -136,7 +137,7 @@ SELECT
 	, SUM([new_deaths]) total_new_death
 	, SUM(CAST([new_deaths] as float))/SUM([new_cases]) * 100 AS new_death_percentage
 FROM
-	portfolio_data_analyst..Covid_Death_Excel
+	PortfolioProject..Covid_Death_Excel
 WHERE 
 	continent is not NULL
 ORDER BY
@@ -145,9 +146,7 @@ ORDER BY
 
 
 
-	
-ALTER TABLE portfolio_data_analyst..Covid_Vaccinations_Excel
-ALTER COLUMN [total_vaccinations] bigint
+
 
 
 --Explore important information the Covid Vaccinations data
@@ -160,9 +159,9 @@ SELECT
 	, tableB.new_vaccinations
 	, SUM(convert(bigint, tableB.new_vaccinations)) OVER (partition by tableA.location order by tableA.date) cummulative_new_vaccinations
 FROM
-	portfolio_data_analyst.dbo.Covid_Death_Excel tableA
+	PortfolioProject.dbo.Covid_Death_Excel tableA
 JOIN
-	portfolio_data_analyst.dbo.Covid_Vaccinations_Excel tableB
+	PortfolioProject.dbo.Covid_Vaccinations_Excel tableB
 ON
 	tableA.date = tableB.date
 	AND tableA.location = tableB.location
@@ -186,9 +185,9 @@ SELECT
 	, tableB.new_vaccinations
 	, SUM(convert(bigint, tableB.new_vaccinations)) OVER (partition by tableA.location order by tableA.date) cummulative_new_vaccinations
 FROM
-	portfolio_data_analyst.dbo.Covid_Death_Excel tableA
+	PortfolioProject.dbo.Covid_Death_Excel tableA
 JOIN
-	portfolio_data_analyst.dbo.Covid_Vaccinations_Excel tableB
+	PortfolioProject.dbo.Covid_Vaccinations_Excel tableB
 ON
 	tableA.date = tableB.date
 	AND tableA.location = tableB.location
@@ -211,13 +210,13 @@ SELECT
 	, tableA.date
 	, tableA.population
 	, tableB.new_vaccinations
-	, SUM(convert(bigint, tableB.new_vaccinations)) OVER (partition by tableA.location order by tableA.date) cummulative_new_vaccinations
+	, SUM(convert(bigint, tableB.new_vaccinations)) OVER (partition by tableA.location order by tableA.location, tableA.date) cummulative_new_vaccinations
 INTO
 	#POPvsVAC
 FROM
-	portfolio_data_analyst.dbo.Covid_Death_Excel tableA
+	PortfolioProject.dbo.Covid_Death_Excel tableA
 JOIN
-	portfolio_data_analyst.dbo.Covid_Vaccinations_Excel tableB
+	PortfolioProject.dbo.Covid_Vaccinations_Excel tableB
 ON
 	tableA.date = tableB.date
 	AND tableA.location = tableB.location
@@ -245,11 +244,11 @@ SELECT
 	, tableA.date
 	, tableA.population
 	, tableB.new_vaccinations
-	, SUM(convert(bigint, tableB.new_vaccinations)) OVER (partition by tableA.location order by tableA.date) cummulative_new_vaccinations
+	, SUM(convert(bigint, tableB.new_vaccinations)) OVER (partition by tableA.location order by tableA.location, tableA.date) cummulative_new_vaccinations
 FROM
-	portfolio_data_analyst.dbo.Covid_Death_Excel tableA
+	PortfolioProject.dbo.Covid_Death_Excel tableA
 JOIN
-	portfolio_data_analyst.dbo.Covid_Vaccinations_Excel tableB
+	PortfolioProject.dbo.Covid_Vaccinations_Excel tableB
 ON
 	tableA.date = tableB.date
 	AND tableA.location = tableB.location
